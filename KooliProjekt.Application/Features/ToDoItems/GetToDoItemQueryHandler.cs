@@ -20,6 +20,12 @@ namespace KooliProjekt.Application.Features.ToDoItems
         public async Task<OperationResult<ToDoItem?>> Handle(GetToDoItemQuery request, CancellationToken cancellationToken)
         {
             var result = new OperationResult<ToDoItem?>();
+
+            if (request == null)
+            {
+                return result;
+            }
+
             result.Value = await _repository.GetByIdAsync(request.Id);
             return result;
         }

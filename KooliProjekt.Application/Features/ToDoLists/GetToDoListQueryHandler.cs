@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.ToDoLists
 {
-    // 28.11
-    // Kasutab IToDoListRepositoryt
     public class GetToDoListQueryHandler : IRequestHandler<GetToDoListQuery, OperationResult<object>>
     {
         private readonly IToDoListRepository _toDoListRepository;
@@ -23,13 +21,24 @@ namespace KooliProjekt.Application.Features.ToDoLists
         public async Task<OperationResult<object>> Handle(GetToDoListQuery request, CancellationToken cancellationToken)
         {
             var result = new OperationResult<object>();
+
+            if (request == null)
+            {
+                return result;
+            }
+
             var list = await _toDoListRepository.GetByIdAsync(request.Id);
 
-            result.Value = new // Anonymous object
+            if (list == null)
+            {
+                return result;
+            }
+
+            result.Value = new
             {
                 Id = list.Id,
                 Title = list.Title,
-                Items = list.Items.Select(item => new
+                Items = list.Items?.Select(item => new
                 {
                     Id = item.Id,
                     Title = item.Title,

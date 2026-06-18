@@ -20,6 +20,12 @@ namespace KooliProjekt.Application.Features.Registrations
         public async Task<OperationResult<Registration?>> Handle(GetRegistrationQuery request, CancellationToken cancellationToken)
         {
             var result = new OperationResult<Registration?>();
+
+            if (request == null)
+            {
+                return result;
+            }
+
             result.Value = await _repository.GetByIdAsync(request.Id);
             return result;
         }

@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using KooliProjekt.Application.Data;
-using KooliProjekt.Application.Data.Repositories; // Добавляем репозиторий
+using KooliProjekt.Application.Data.Repositories;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 using System.Threading;
@@ -21,7 +21,11 @@ namespace KooliProjekt.Application.Features.Users
         {
             var result = new OperationResult<User?>();
 
-            // Используем репозиторий вместо DbContext
+            if (request == null)
+            {
+                return result;
+            }
+
             result.Value = await _repository.GetByIdAsync(request.Id);
 
             return result;

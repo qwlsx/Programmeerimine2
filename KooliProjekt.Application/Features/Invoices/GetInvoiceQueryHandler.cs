@@ -1,8 +1,8 @@
 ﻿#nullable enable
 using System.Threading;
 using System.Threading.Tasks;
-using KooliProjekt.Application.Data; // Здесь лежит класс Invoice
-using KooliProjekt.Application.Data.Repositories; // Здесь лежит интерфейс IInvoiceRepository
+using KooliProjekt.Application.Data;
+using KooliProjekt.Application.Data.Repositories;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
@@ -21,7 +21,11 @@ namespace KooliProjekt.Application.Features.Invoices
         {
             var result = new OperationResult<Invoice?>();
 
-            // Теперь используем наш репозиторий вместо прямого обращения к DbContext
+            if (request == null)
+            {
+                return result;
+            }
+
             result.Value = await _repository.GetByIdAsync(request.Id);
 
             return result;

@@ -21,7 +21,11 @@ namespace KooliProjekt.Application.Features.Payments
         {
             var result = new OperationResult<Payment?>();
 
-            // Используем репозиторий
+            if (request == null)
+            {
+                return result;
+            }
+
             result.Value = await _repository.GetByIdAsync(request.Id);
 
             return result;
