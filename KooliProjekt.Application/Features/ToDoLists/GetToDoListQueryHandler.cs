@@ -1,51 +1,34 @@
-﻿using System.Linq;
+﻿#nullable enable
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using KooliProjekt.Application.Data;
 using KooliProjekt.Application.Data.Repositories;
+using KooliProjekt.Application.DTOs;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.ToDoLists
 {
-    public class GetToDoListQueryHandler : IRequestHandler<GetToDoListQuery, OperationResult<object>>
+    public class GetToDoListQueryHandler : IRequestHandler<GetToDoListQuery, OperationResult<ToDoListDto?>>
     {
-        private readonly IToDoListRepository _toDoListRepository;
+        private readonly IToDoListRepository _repository;
+        public GetToDoListQueryHandler(IToDoListRepository repository) => _repository = repository;
 
-        public GetToDoListQueryHandler(IToDoListRepository toDoListRepository)
+        public async Task<OperationResult<ToDoListDto?>> Handle(GetToDoListQuery request, CancellationToken ct)
         {
-            _toDoListRepository = toDoListRepository;
-        }
+            var result = new OperationResult<ToDoListDto?>();
+            if (request == null) return result;
 
-        public async Task<OperationResult<object>> Handle(GetToDoListQuery request, CancellationToken cancellationToken)
-        {
-            var result = new OperationResult<object>();
-
-            if (request == null)
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity != null)
             {
-                return result;
-            }
-
-            var list = await _toDoListRepository.GetByIdAsync(request.Id);
-
-            if (list == null)
-            {
-                return result;
-            }
-
-            result.Value = new
-            {
-                Id = list.Id,
-                Title = list.Title,
-                Items = list.Items?.Select(item => new
+                result.Value = new ToDoListDto
                 {
-                    Id = item.Id,
-                    Title = item.Title,
-                    IsDone = item.IsDone
-                })
-            };
-
+                    Id = entity.Id,
+                    Title = entity.Title,
+                    Items = entity.Items?.Select(i => new ToDoItemDto { Id = i.Id, Title = i.Title, IsDone = i.IsDone }).ToList() ?? new()
+                };
+            }
             return result;
         }
     }

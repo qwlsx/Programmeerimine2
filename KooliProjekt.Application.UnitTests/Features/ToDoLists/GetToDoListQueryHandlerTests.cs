@@ -6,6 +6,7 @@ using Xunit;
 using KooliProjekt.Application.Features.ToDoLists;
 using KooliProjekt.Application.Data.Repositories;
 using KooliProjekt.Application.Data;
+using KooliProjekt.Application.DTOs;
 using System.Collections.Generic;
 
 namespace KooliProjekt.Application.UnitTests.Features.ToDoLists

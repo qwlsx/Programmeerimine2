@@ -1,33 +1,28 @@
 ﻿#nullable enable
-using KooliProjekt.Application.Data;
-using KooliProjekt.Application.Data.Repositories;
-using KooliProjekt.Application.Infrastructure.Results;
-using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using KooliProjekt.Application.Data.Repositories;
+using KooliProjekt.Application.DTOs;
+using KooliProjekt.Application.Infrastructure.Results;
+using MediatR;
 
 namespace KooliProjekt.Application.Features.Users
 {
-    public class GetUserQueryHandler : IRequestHandler<GetUserQuery, OperationResult<User?>>
+    public class GetUserQueryHandler : IRequestHandler<GetUserQuery, OperationResult<UserDto?>>
     {
         private readonly IUserRepository _repository;
+        public GetUserQueryHandler(IUserRepository repository) => _repository = repository;
 
-        public GetUserQueryHandler(IUserRepository repository)
+        public async Task<OperationResult<UserDto?>> Handle(GetUserQuery request, CancellationToken ct)
         {
-            _repository = repository;
-        }
+            var result = new OperationResult<UserDto?>();
+            if (request == null) return result;
 
-        public async Task<OperationResult<User?>> Handle(GetUserQuery request, CancellationToken cancellationToken)
-        {
-            var result = new OperationResult<User?>();
-
-            if (request == null)
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity != null)
             {
-                return result;
+                result.Value = new UserDto { Id = entity.Id };
             }
-
-            result.Value = await _repository.GetByIdAsync(request.Id);
-
             return result;
         }
     }

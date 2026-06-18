@@ -1,32 +1,28 @@
 ﻿#nullable enable
 using System.Threading;
 using System.Threading.Tasks;
-using KooliProjekt.Application.Data;
 using KooliProjekt.Application.Data.Repositories;
+using KooliProjekt.Application.DTOs;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
 namespace KooliProjekt.Application.Features.Registrations
 {
-    public class GetRegistrationQueryHandler : IRequestHandler<GetRegistrationQuery, OperationResult<Registration?>>
+    public class GetRegistrationQueryHandler : IRequestHandler<GetRegistrationQuery, OperationResult<RegistrationDto?>>
     {
         private readonly IRegistrationRepository _repository;
+        public GetRegistrationQueryHandler(IRegistrationRepository repository) => _repository = repository;
 
-        public GetRegistrationQueryHandler(IRegistrationRepository repository)
+        public async Task<OperationResult<RegistrationDto?>> Handle(GetRegistrationQuery request, CancellationToken ct)
         {
-            _repository = repository;
-        }
+            var result = new OperationResult<RegistrationDto?>();
+            if (request == null) return result;
 
-        public async Task<OperationResult<Registration?>> Handle(GetRegistrationQuery request, CancellationToken cancellationToken)
-        {
-            var result = new OperationResult<Registration?>();
-
-            if (request == null)
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity != null)
             {
-                return result;
+                result.Value = new RegistrationDto { Id = entity.Id };
             }
-
-            result.Value = await _repository.GetByIdAsync(request.Id);
             return result;
         }
     }
