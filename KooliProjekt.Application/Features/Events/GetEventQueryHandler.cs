@@ -18,6 +18,13 @@ namespace KooliProjekt.Application.Features.Events
         public async Task<OperationResult<object>> Handle(GetEventQuery request, CancellationToken cancellationToken)
         {
             var result = new OperationResult<object>();
+
+            // Защита от null (требование учителя)
+            if (request == null)
+            {
+                return result;
+            }
+
             var entity = await _repository.GetByIdAsync(request.Id);
 
             if (entity == null) return result;
