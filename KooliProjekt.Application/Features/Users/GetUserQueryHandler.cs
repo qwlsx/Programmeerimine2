@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data.Repositories;
@@ -15,8 +16,17 @@ namespace KooliProjekt.Application.Features.Users
 
         public async Task<OperationResult<UserDto?>> Handle(GetUserQuery request, CancellationToken ct)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = new OperationResult<UserDto?>();
-            if (request == null) return result;
+
+            if (request.Id <= 0)
+            {
+                return result;
+            }
 
             var entity = await _repository.GetByIdAsync(request.Id);
             if (entity != null)

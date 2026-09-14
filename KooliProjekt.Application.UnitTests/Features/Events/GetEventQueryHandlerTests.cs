@@ -1,11 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Moq;
 using FluentAssertions;
-using Xunit;
-using KooliProjekt.Application.Features.Events;
 using KooliProjekt.Application.Data.Repositories;
-using KooliProjekt.Application.Data;
+using KooliProjekt.Application.Features.Events;
+using Moq;
+using Xunit;
 
 namespace KooliProjekt.Application.UnitTests.Features.Events
 {
@@ -16,37 +16,31 @@ namespace KooliProjekt.Application.UnitTests.Features.Events
 
         public GetEventQueryHandlerTests()
         {
-            // Создаем заглушку репозитория
             _repositoryMock = new Mock<IEventRepository>();
             _handler = new GetEventQueryHandler(_repositoryMock.Object);
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnEmptyResult_WhenRequestIsNull()
+        public async Task Handle_ShouldThrowArgumentNullException_WhenRequestIsNull()
         {
-            // Act
-            var result = await _handler.Handle(null, CancellationToken.None);
+            Func<Task> act = async () => await _handler.Handle(null!, CancellationToken.None);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Value.Should().BeNull();
+            await act.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        [Fact]
-        public async Task Handle_ShouldReturnResultWithValue_WhenEventExists()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(-100)]
+        public async Task Handle_ShouldReturnEmptyResultAndNotCallRepository_WhenIdIsZeroOrLess(int id)
         {
-            // Arrange
-            var eventEntity = new Event { Id = 1, Name = "Concert", TotalSeats = 100, Price = 50 };
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(eventEntity);
+            var query = new GetEventQuery { Id = id };
 
-            var query = new GetEventQuery { Id = 1 };
-
-            // Act
             var result = await _handler.Handle(query, CancellationToken.None);
 
-            // Assert
             result.Should().NotBeNull();
-            result.Value.Should().NotBeNull();
+            result.Value.Should().BeNull();
+            _repositoryMock.Verify(x => x.GetByIdAsync(It.IsAny<int>()), Times.Never);
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data.Repositories;
+using KooliProjekt.Application.DTOs;
 using KooliProjekt.Application.Infrastructure.Results;
-using KooliProjekt.Application.DTOs; // Подключаем DTO
 using MediatR;
 
 namespace KooliProjekt.Application.Features.Invoices
@@ -19,24 +20,27 @@ namespace KooliProjekt.Application.Features.Invoices
 
         public async Task<OperationResult<InvoiceDto?>> Handle(GetInvoiceQuery request, CancellationToken cancellationToken)
         {
+            // 1. Если request null — кидаем ArgumentNullException
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = new OperationResult<InvoiceDto?>();
 
-            if (request == null)
+            // 2. Если Id <= 0 — не обращаемся к репозиторию, сразу отдаем пустой result
+            if (request.Id <= 0)
             {
                 return result;
             }
 
             var entity = await _repository.GetByIdAsync(request.Id);
 
-            // Если сущность найдена, перекладываем данные в DTO
             if (entity != null)
             {
                 result.Value = new InvoiceDto
                 {
                     Id = entity.Id
-                    // TODO: Переложи остальные свойства
-                    // InvoiceNumber = entity.InvoiceNumber,
-                    // Amount = entity.Amount
                 };
             }
 

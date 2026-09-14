@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
@@ -8,12 +9,10 @@ using MediatR;
 
 namespace KooliProjekt.Application.Features.Registrations
 {
-    // Хендлер, который достает куски регистраций из базы
     public class ListRegistrationsQueryHandler : IRequestHandler<ListRegistrationsQuery, OperationResult<PagedResult<Registration>>>
     {
         private readonly ApplicationDbContext _context;
 
-        // Инициализирую контекст БД через конструктор
         public ListRegistrationsQueryHandler(ApplicationDbContext context)
         {
             _context = context;
@@ -21,10 +20,28 @@ namespace KooliProjekt.Application.Features.Registrations
 
         public async Task<OperationResult<PagedResult<Registration>>> Handle(ListRegistrationsQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.Page <= 0)
+            {
+                throw new ArgumentException("Page must be greater than zero.", nameof(request.Page));
+            }
+
+            if (request.PageSize <= 0)
+            {
+                throw new ArgumentException("PageSize must be greater than zero.", nameof(request.PageSize));
+            }
+
+            if (request.PageSize > 100)
+            {
+                throw new ArgumentException("PageSize cannot exceed 100.", nameof(request.PageSize));
+            }
+
             var result = new OperationResult<PagedResult<Registration>>();
 
-            // Беру регистрации, сортирую по Id (так как текстового имени тут нет)
-            // и вызываю постраничный вывод от учителя
             result.Value = await _context.Registrations
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);

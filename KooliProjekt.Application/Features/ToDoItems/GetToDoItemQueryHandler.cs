@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data.Repositories;
@@ -15,8 +16,17 @@ namespace KooliProjekt.Application.Features.ToDoItems
 
         public async Task<OperationResult<ToDoItemDto?>> Handle(GetToDoItemQuery request, CancellationToken ct)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = new OperationResult<ToDoItemDto?>();
-            if (request == null) return result;
+
+            if (request.Id <= 0)
+            {
+                return result;
+            }
 
             var entity = await _repository.GetByIdAsync(request.Id);
             if (entity != null)

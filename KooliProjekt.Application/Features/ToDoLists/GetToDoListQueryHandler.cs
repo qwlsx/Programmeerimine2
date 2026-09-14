@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +17,17 @@ namespace KooliProjekt.Application.Features.ToDoLists
 
         public async Task<OperationResult<ToDoListDto?>> Handle(GetToDoListQuery request, CancellationToken ct)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = new OperationResult<ToDoListDto?>();
-            if (request == null) return result;
+
+            if (request.Id <= 0)
+            {
+                return result;
+            }
 
             var entity = await _repository.GetByIdAsync(request.Id);
             if (entity != null)

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
@@ -8,12 +9,10 @@ using MediatR;
 
 namespace KooliProjekt.Application.Features.Events
 {
-    // Хендлер, который обрабатывает мой запрос ListEventsQuery
     public class ListEventsQueryHandler : IRequestHandler<ListEventsQuery, OperationResult<PagedResult<Event>>>
     {
         private readonly ApplicationDbContext _context;
 
-        // Подтягиваю контекст базы данных через конструктор
         public ListEventsQueryHandler(ApplicationDbContext context)
         {
             _context = context;
@@ -21,10 +20,28 @@ namespace KooliProjekt.Application.Features.Events
 
         public async Task<OperationResult<PagedResult<Event>>> Handle(ListEventsQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.Page <= 0)
+            {
+                throw new ArgumentException("Page must be greater than zero.", nameof(request.Page));
+            }
+
+            if (request.PageSize <= 0)
+            {
+                throw new ArgumentException("PageSize must be greater than zero.", nameof(request.PageSize));
+            }
+
+            if (request.PageSize > 100)
+            {
+                throw new ArgumentException("PageSize cannot exceed 100.", nameof(request.PageSize));
+            }
+
             var result = new OperationResult<PagedResult<Event>>();
 
-            // Вытаскиваю данные из таблицы Events, сортирую по имени (Name) 
-            // и вызываю метод расширения от учителя .GetPagedAsync, чтобы разбить на страницы
             result.Value = await _context.Events
                 .OrderBy(x => x.Name)
                 .GetPagedAsync(request.Page, request.PageSize);

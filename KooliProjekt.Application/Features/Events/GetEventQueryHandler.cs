@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data.Repositories;
 using KooliProjekt.Application.Infrastructure.Results;
@@ -17,10 +18,14 @@ namespace KooliProjekt.Application.Features.Events
 
         public async Task<OperationResult<object>> Handle(GetEventQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = new OperationResult<object>();
 
-            // Защита от null (требование учителя)
-            if (request == null)
+            if (request.Id <= 0)
             {
                 return result;
             }

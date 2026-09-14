@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
@@ -8,8 +9,8 @@ using MediatR;
 
 namespace KooliProjekt.Application.Features.EventPrograms
 {
-    // Мой хендлер для вытаскивания расписания
-    public class ListEventProgramsQueryHandler : IRequestHandler<ListEventProgramsQuery, OperationResult<PagedResult<Event_Program>>>
+    public class ListEventProgramsQueryHandler
+        : IRequestHandler<ListEventProgramsQuery, OperationResult<PagedResult<Event_Program>>>
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,11 +19,38 @@ namespace KooliProjekt.Application.Features.EventPrograms
             _context = context;
         }
 
-        public async Task<OperationResult<PagedResult<Event_Program>>> Handle(ListEventProgramsQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<PagedResult<Event_Program>>> Handle(
+            ListEventProgramsQuery request,
+            CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.Page <= 0)
+            {
+                throw new ArgumentException(
+                    "Page must be greater than zero.",
+                    nameof(request.Page));
+            }
+
+            if (request.PageSize <= 0)
+            {
+                throw new ArgumentException(
+                    "PageSize must be greater than zero.",
+                    nameof(request.PageSize));
+            }
+
+            if (request.PageSize > 100)
+            {
+                throw new ArgumentException(
+                    "PageSize cannot be greater than 100.",
+                    nameof(request.PageSize));
+            }
+
             var result = new OperationResult<PagedResult<Event_Program>>();
 
-            // Достаю пункты программы из таблицы Event_Programs, сортирую по Id
             result.Value = await _context.Event_Programs
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);

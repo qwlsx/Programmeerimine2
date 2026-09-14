@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +21,26 @@ namespace KooliProjekt.Application.Features.ToDoLists
 
         public async Task<OperationResult<PagedResult<ToDoList>>> Handle(ListToDoListsQuery request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            if (request.Page <= 0)
+            {
+                throw new ArgumentException("Page must be greater than zero.", nameof(request.Page));
+            }
+
+            if (request.PageSize <= 0)
+            {
+                throw new ArgumentException("PageSize must be greater than zero.", nameof(request.PageSize));
+            }
+
+            if (request.PageSize > 100)
+            {
+                throw new ArgumentException("PageSize cannot exceed 100.", nameof(request.PageSize));
+            }
+
             var result = new OperationResult<PagedResult<ToDoList>>();
 
             result.Value = await _dbContext
