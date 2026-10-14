@@ -33,7 +33,7 @@ namespace KooliProjekt.Application.Features.Invoices
 
             // Обновляем поля
             entity.RegistrationId = request.RegistrationId;
-            entity.Number = request.Number;
+            entity.Number = request.Id == 0 ? await _repository.GetNextNumberAsync() : request.Number;
             entity.TotalAmount = request.TotalAmount;
             entity.Status = request.Status;
 

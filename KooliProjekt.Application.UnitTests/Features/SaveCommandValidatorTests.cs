@@ -97,7 +97,7 @@ public class SaveCommandValidatorTests
     [Fact]
     public void Invoice_invalid_fields_should_fail()
     {
-        var result = new SaveInvoiceCommandValidator().Validate(new SaveInvoiceCommand { TotalAmount = -1, Status = "Unknown" });
+        var result = new SaveInvoiceCommandValidator().Validate(new SaveInvoiceCommand { Id = 1, TotalAmount = -1, Status = "Unknown" });
         Assert.Contains(result.Errors, x => x.PropertyName == "RegistrationId");
         Assert.Contains(result.Errors, x => x.PropertyName == "Number");
         Assert.Contains(result.Errors, x => x.PropertyName == "TotalAmount");

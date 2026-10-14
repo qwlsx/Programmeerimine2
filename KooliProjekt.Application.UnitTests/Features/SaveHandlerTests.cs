@@ -88,10 +88,11 @@ public class SaveHandlerTests
     public async Task Save_invoice_should_pass_entity_to_repository()
     {
         var repository = new Mock<IInvoiceRepository>();
+        repository.Setup(x => x.GetNextNumberAsync()).ReturnsAsync("INV-00110");
         var result = await new SaveInvoiceCommandHandler(repository.Object).Handle(
             new SaveInvoiceCommand { RegistrationId = 1, Number = "INV-200", TotalAmount = 20, Status = "Draft" }, default);
         Assert.False(result.HasErrors);
-        repository.Verify(x => x.SaveAsync(It.Is<Invoice>(e => e.Number == "INV-200" && e.CreatedAt != default)), Times.Once);
+        repository.Verify(x => x.SaveAsync(It.Is<Invoice>(e => e.Number == "INV-00110" && e.CreatedAt != default)), Times.Once);
     }
 
     [Fact]
