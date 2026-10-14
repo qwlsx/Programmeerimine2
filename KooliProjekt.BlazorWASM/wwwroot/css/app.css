@@ -1,0 +1,17 @@
+:root { font-family: Inter, Segoe UI, sans-serif; color: #172033; background: #f5f7fb; }
+body { margin: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 7vw; background: #173b67; color: white; }
+.topbar a { color: white; text-decoration: none; margin-left: 24px; }
+.brand { font-size: 1.15rem; font-weight: 700; margin-left: 0 !important; }
+.container { max-width: 1100px; margin: 36px auto; padding: 0 24px; }
+.heading-row { display: flex; align-items: center; justify-content: space-between; }
+.button, button { display: inline-block; border: 0; border-radius: 6px; padding: 10px 16px; background: #1769aa; color: white; text-decoration: none; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 12px #17203314; }
+th, td { padding: 12px 14px; border-bottom: 1px solid #e3e8ef; text-align: left; }
+th { background: #eaf0f7; }
+.form-grid { display: grid; grid-template-columns: 190px minmax(250px, 560px); gap: 12px 18px; align-items: center; }
+input, textarea { border: 1px solid #b8c3d1; border-radius: 5px; padding: 9px; font: inherit; }
+textarea { min-height: 100px; }
+.actions { display: flex; align-items: center; gap: 18px; margin-top: 22px; }
+.alert, .validation-errors { color: #9b1c1c; background: #fff0f0; padding: 12px; border-radius: 5px; }
+#blazor-error-ui { display: none; }

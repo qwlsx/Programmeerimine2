@@ -1,0 +1,67 @@
+@page "/events/edit"
+@page "/events/edit/{Id:int}"
+@inject EventsApiClient ApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id == 0 ? "Новое мероприятие" : "Изменение мероприятия")</PageTitle>
+<h1>@(Id == 0 ? "Новое мероприятие" : "Изменение мероприятия")</h1>
+
+@if (_loading)
+{
+    <p>Загрузка...</p>
+}
+else
+{
+    <EditForm EditContext="_editContext" OnSubmit="Save">
+        <ValidationSummary />
+        <div class="form-grid">
+            <label>Название</label><InputText @bind-Value="_model.Name" />
+            <label>Дата и время начала</label><InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartDateTime" />
+            <label>Описание</label><InputTextArea @bind-Value="_model.Description" />
+            <label>Количество мест</label><InputNumber @bind-Value="_model.TotalSeats" />
+            <label>Цена</label><InputNumber @bind-Value="_model.Price" />
+        </div>
+        <div class="actions"><button class="button" type="submit" disabled="@_saving">Сохранить</button><a href="/events">Отмена</a></div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private EventModel _model = new();
+    private EditContext _editContext = default!;
+    private ValidationMessageStore _messages = default!;
+    private bool _loading = true;
+    private bool _saving;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id > 0)
+        {
+            var response = await ApiClient.GetAsync(Id);
+            if (response?.Value != null) _model = response.Value;
+        }
+        _editContext = new EditContext(_model);
+        _messages = new ValidationMessageStore(_editContext);
+        _loading = false;
+    }
+
+    private async Task Save(EditContext context)
+    {
+        _saving = true;
+        _messages.Clear();
+        try
+        {
+            var response = await ApiClient.SaveAsync(_model);
+            if (!response.HasErrors) { Navigation.NavigateTo("/events"); return; }
+            if (response.PropertyErrors != null)
+            {
+                foreach (var error in response.PropertyErrors)
+                    _messages.Add(new FieldIdentifier(_model, error.Key), error.Value);
+            }
+            if (response.Errors != null)
+                foreach (var error in response.Errors) _messages.Add(new FieldIdentifier(_model, string.Empty), error);
+            _editContext.NotifyValidationStateChanged();
+        }
+        finally { _saving = false; }
+    }
+}

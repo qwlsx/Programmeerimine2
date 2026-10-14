@@ -1,0 +1,51 @@
+@page "/events"
+@inject EventsApiClient ApiClient
+
+<PageTitle>Мероприятия</PageTitle>
+<div class="heading-row">
+    <h1>Мероприятия</h1>
+    <a class="button" href="/events/edit">Добавить</a>
+</div>
+
+@if (_loading)
+{
+    <p>Загрузка...</p>
+}
+else if (_error != null)
+{
+    <div class="alert">@_error</div>
+}
+else
+{
+    <table>
+        <thead><tr><th>Название</th><th>Начало</th><th>Места</th><th>Цена</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in _events)
+        {
+            <tr>
+                <td>@item.Name</td><td>@item.StartDateTime.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@item.TotalSeats</td><td>@item.Price.ToString("0.00") €</td>
+                <td><a href="@($"/events/edit/{item.Id}")">Изменить</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private List<EventModel> _events = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await ApiClient.ListAsync();
+            if (response.HasErrors || response.Value == null) _error = "Не удалось загрузить мероприятия";
+            else _events = response.Value.Results;
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _loading = false; }
+    }
+}
