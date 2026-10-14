@@ -42,7 +42,13 @@ namespace KooliProjekt.Application.Features.Payments
 
             var result = new OperationResult<PagedResult<Payment>>();
 
-            result.Value = await _context.Payments
+            var query = _context.Payments.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                query = query.Where(x => x.PaymentMethod.Contains(request.Search) || x.Status.Contains(request.Search) || (x.PaymentRef != null && x.PaymentRef.Contains(request.Search)));
+            }
+
+            result.Value = await query
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);
 

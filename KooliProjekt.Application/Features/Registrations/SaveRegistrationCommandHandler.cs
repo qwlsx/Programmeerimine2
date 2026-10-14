@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
@@ -35,7 +36,7 @@ namespace KooliProjekt.Application.Features.Registrations
             entity.UserId = request.UserId;
             entity.EventId = request.EventId;
             entity.Status = request.Status;
-            entity.RegisteredAt = request.RegisteredAt;
+            entity.RegisteredAt = request.RegisteredAt == default ? DateTime.UtcNow : request.RegisteredAt;
 
             // Сохраняем через репозиторий
             await _repository.SaveAsync(entity);

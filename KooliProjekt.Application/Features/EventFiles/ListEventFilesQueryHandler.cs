@@ -51,7 +51,10 @@ namespace KooliProjekt.Application.Features.EventFiles
 
             var result = new OperationResult<PagedResult<Event_Files>>();
 
-            result.Value = await _context.Event_Files
+            var query = _context.Event_Files.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search)) query = query.Where(x => x.FileUrl.Contains(request.Search) || x.FileType.Contains(request.Search));
+
+            result.Value = await query
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);
 

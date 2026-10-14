@@ -22,6 +22,14 @@ namespace KooliProjekt.WebAPI.Controllers
             return Result(response);
         }
 
+        [HttpGet]
+        [Route("Get")]
+        public async Task<IActionResult> Get([FromQuery] int id)
+        {
+            var response = await _mediator.Send(new GetRegistrationQuery { Id = id });
+            return Result(response);
+        }
+
         [HttpPost]
         [Route("Save")]
         public async Task<IActionResult> Save([FromBody] SaveRegistrationCommand command)

@@ -8,13 +8,13 @@ namespace KooliProjekt.Application.Data
     public class Event : Entity
     {
         [Required(ErrorMessage = "Название мероприятия обязательно для заполнения")]
-        [StringLength(100, ErrorMessage = "Название не может быть длиннее 100 символов")]
+        [StringLength(150, ErrorMessage = "Название не может быть длиннее 150 символов")]
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Дата и время начала обязательны")]
         public DateTime StartDateTime { get; set; }
 
-        [StringLength(500, ErrorMessage = "Описание не может быть длиннее 500 символов")]
+        [StringLength(1000, ErrorMessage = "Описание не может быть длиннее 1000 символов")]
         public string? Description { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Количество мест должно быть больше 0")]

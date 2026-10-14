@@ -9,9 +9,10 @@ namespace KooliProjekt.Application.Features.Users
     public class ListUsersQuery : IRequest<OperationResult<PagedResult<User>>>
     {
         // Номер страницы, которую я хочу открыть
-        public int Page { get; set; }
+        public int Page { get; set; } = 1;
 
         // Сколько пользователей показать на одной странице
-        public int PageSize { get; set; }
+        public int PageSize { get; set; } = 100;
+        public string Search { get; set; }
     }
 }

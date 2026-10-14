@@ -8,7 +8,8 @@ namespace KooliProjekt.Application.Features.EventFiles
     // Запрос на список прикрепленных файлов с типом Event_Files
     public class ListEventFilesQuery : IRequest<OperationResult<PagedResult<Event_Files>>>
     {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 100;
+        public string Search { get; set; }
     }
 }

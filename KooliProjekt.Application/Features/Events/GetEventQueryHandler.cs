@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data.Repositories;
+using KooliProjekt.Application.DTOs;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
 namespace KooliProjekt.Application.Features.Events
 {
-    public class GetEventQueryHandler : IRequestHandler<GetEventQuery, OperationResult<object>>
+    public class GetEventQueryHandler : IRequestHandler<GetEventQuery, OperationResult<EventDto>>
     {
         private readonly IEventRepository _repository;
 
@@ -16,34 +17,25 @@ namespace KooliProjekt.Application.Features.Events
             _repository = repository;
         }
 
-        public async Task<OperationResult<object>> Handle(GetEventQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<EventDto>> Handle(GetEventQuery request, CancellationToken cancellationToken)
         {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
-
-            var result = new OperationResult<object>();
-
-            if (request.Id <= 0)
-            {
-                return result;
-            }
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            var result = new OperationResult<EventDto>();
+            if (request.Id <= 0) return result;
 
             var entity = await _repository.GetByIdAsync(request.Id);
-
             if (entity == null) return result;
 
-            result.Value = new
+            result.Value = new EventDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
                 StartDateTime = entity.StartDateTime,
                 Description = entity.Description,
                 TotalSeats = entity.TotalSeats,
-                Price = entity.Price
+                Price = entity.Price,
+                CreatedAt = entity.CreatedAt
             };
-
             return result;
         }
     }

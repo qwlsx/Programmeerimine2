@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
@@ -22,11 +23,19 @@ namespace KooliProjekt.Application.Features.Events
             var result = new OperationResult();
 
             // Если Id 0, создаем новый, иначе ищем существующий
-            var entity = request.Id == 0 ? new Event() : await _repository.GetByIdAsync(request.Id);
+            var entity = request.Id == 0
+                ? new Event { CreatedAt = DateTime.UtcNow }
+                : await _repository.GetByIdAsync(request.Id);
 
             if (entity == null)
             {
                 result.AddPropertyError("Event", "Мероприятие не найдено");
+                return result;
+            }
+
+            if (request.StartDateTime < entity.CreatedAt)
+            {
+                result.AddPropertyError("StartDateTime", "Дата мероприятия не может быть раньше даты создания");
                 return result;
             }
 

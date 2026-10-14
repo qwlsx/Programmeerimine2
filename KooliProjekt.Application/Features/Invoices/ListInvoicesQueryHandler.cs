@@ -42,7 +42,10 @@ namespace KooliProjekt.Application.Features.Invoices
 
             var result = new OperationResult<PagedResult<Invoice>>();
 
-            result.Value = await _context.Invoices
+            var query = _context.Invoices.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search)) query = query.Where(x => x.Number.Contains(request.Search) || x.Status.Contains(request.Search));
+
+            result.Value = await query
                 .OrderBy(x => x.Number)
                 .GetPagedAsync(request.Page, request.PageSize);
 

@@ -23,7 +23,10 @@ namespace KooliProjekt.Application.Features.EventSummaries
             var result = new OperationResult<PagedResult<Event_Summary>>();
 
             // Вытаскиваю итоги из таблицы Event_Summaries, сортирую по Id
-            result.Value = await _context.Event_Summaries
+            var query = _context.Event_Summaries.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search)) query = query.Where(x => x.SummaryText.Contains(request.Search));
+
+            result.Value = await query
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);
 

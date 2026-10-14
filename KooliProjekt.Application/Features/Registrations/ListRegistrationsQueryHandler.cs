@@ -42,7 +42,10 @@ namespace KooliProjekt.Application.Features.Registrations
 
             var result = new OperationResult<PagedResult<Registration>>();
 
-            result.Value = await _context.Registrations
+            var query = _context.Registrations.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search)) query = query.Where(x => x.Status.Contains(request.Search));
+
+            result.Value = await query
                 .OrderBy(x => x.Id)
                 .GetPagedAsync(request.Page, request.PageSize);
 

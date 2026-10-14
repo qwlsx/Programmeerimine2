@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations; // <--- Добавил для ли�
 
 namespace KooliProjekt.Application.Data
 {
-    public class Event_Files
+    public class Event_Files : Entity
     {
-        public int Id { get; set; }
-
         public int EventId { get; set; }
 
         [Required(ErrorMessage = "Ссылка на файл обязательна")]
@@ -14,7 +12,7 @@ namespace KooliProjekt.Application.Data
         public string FileUrl { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Тип файла обязателен")]
-        [StringLength(50, ErrorMessage = "Тип файла не может быть длиннее 50 символов")]
+        [StringLength(10, ErrorMessage = "Тип файла не может быть длиннее 10 символов")]
         public string FileType { get; set; } = string.Empty;
 
         public Event? Event { get; set; }

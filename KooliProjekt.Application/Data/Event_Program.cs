@@ -4,17 +4,15 @@ using System.ComponentModel.DataAnnotations; // <--- Подключил для �
 
 namespace KooliProjekt.Application.Data
 {
-    public class Event_Program
+    public class Event_Program : Entity
     {
-        public int Id { get; set; }
-
         public int EventId { get; set; }
 
         [Required(ErrorMessage = "Время проведения обязательно")]
         public DateTime Time { get; set; }
 
         [Required(ErrorMessage = "Тема/описание пункта программы обязательны")]
-        [StringLength(200, ErrorMessage = "Описание пункта программы не может быть длиннее 200 символов")]
+        [StringLength(255, ErrorMessage = "Описание пункта программы не может быть длиннее 255 символов")]
         public string Topic { get; set; } = string.Empty;
 
         public Event? Event { get; set; }

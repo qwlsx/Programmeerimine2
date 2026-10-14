@@ -1,10 +1,10 @@
-﻿using KooliProjekt.Application.Infrastructure.Results;
+using KooliProjekt.Application.DTOs;
+using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
 namespace KooliProjekt.Application.Features.Events
 {
-    // Мой конверт для получения одного мероприятия по его Id
-    public class GetEventQuery : IRequest<OperationResult<object>>
+    public class GetEventQuery : IRequest<OperationResult<EventDto>>
     {
         public int Id { get; set; }
     }

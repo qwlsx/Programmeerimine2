@@ -9,11 +9,6 @@ namespace KooliProjekt.Application.Data
         {
         }
 
-        // Старые таблицы-примеры (чтобы ничего не сломать)
-        public DbSet<ToDoList> ToDoLists { get; set; } = null!;
-        public DbSet<ToDoItem> ToDoItems { get; set; } = null!;
-
-        // новые 8 таблиц для мероприятий
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Event> Events { get; set; } = null!;
         public DbSet<Registration> Registrations { get; set; } = null!;
@@ -22,5 +17,31 @@ namespace KooliProjekt.Application.Data
         public DbSet<Event_Files> Event_Files { get; set; } = null!;
         public DbSet<Invoice> Invoices { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(x => x.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Event_Summary>()
+                .HasIndex(x => x.EventId)
+                .IsUnique();
+
+            modelBuilder.Entity<Invoice>()
+                .HasIndex(x => x.RegistrationId)
+                .IsUnique();
+
+            modelBuilder.Entity<Invoice>()
+                .HasIndex(x => x.Number)
+                .IsUnique();
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(x => x.PaymentRef)
+                .IsUnique()
+                .HasFilter("[PaymentRef] IS NOT NULL");
+        }
     }
 }

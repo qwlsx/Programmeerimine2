@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
+using KooliProjekt.Application.DTOs;
 using KooliProjekt.Application.Infrastructure.Paging;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
 namespace KooliProjekt.Application.Features.Events
 {
-    public class ListEventsQueryHandler : IRequestHandler<ListEventsQuery, OperationResult<PagedResult<Event>>>
+    public class ListEventsQueryHandler : IRequestHandler<ListEventsQuery, OperationResult<PagedResult<EventDto>>>
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,35 +19,34 @@ namespace KooliProjekt.Application.Features.Events
             _context = context;
         }
 
-        public async Task<OperationResult<PagedResult<Event>>> Handle(ListEventsQuery request, CancellationToken cancellationToken)
+        public async Task<OperationResult<PagedResult<EventDto>>> Handle(ListEventsQuery request, CancellationToken cancellationToken)
         {
-            if (request == null)
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (request.Page <= 0) throw new ArgumentException("Page must be greater than zero.", nameof(request.Page));
+            if (request.PageSize <= 0) throw new ArgumentException("PageSize must be greater than zero.", nameof(request.PageSize));
+            if (request.PageSize > 100) throw new ArgumentException("PageSize cannot exceed 100.", nameof(request.PageSize));
+
+            var query = _context.Events.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                throw new ArgumentNullException(nameof(request));
+                query = query.Where(x => x.Name.Contains(request.Search) || (x.Description != null && x.Description.Contains(request.Search)));
             }
 
-            if (request.Page <= 0)
-            {
-                throw new ArgumentException("Page must be greater than zero.", nameof(request.Page));
-            }
-
-            if (request.PageSize <= 0)
-            {
-                throw new ArgumentException("PageSize must be greater than zero.", nameof(request.PageSize));
-            }
-
-            if (request.PageSize > 100)
-            {
-                throw new ArgumentException("PageSize cannot exceed 100.", nameof(request.PageSize));
-            }
-
-            var result = new OperationResult<PagedResult<Event>>();
-
-            result.Value = await _context.Events
+            var page = await query
                 .OrderBy(x => x.Name)
+                .Select(x => new EventDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    StartDateTime = x.StartDateTime,
+                    Description = x.Description,
+                    TotalSeats = x.TotalSeats,
+                    Price = x.Price,
+                    CreatedAt = x.CreatedAt
+                })
                 .GetPagedAsync(request.Page, request.PageSize);
 
-            return result;
+            return new OperationResult<PagedResult<EventDto>>(page);
         }
     }
 }

@@ -22,6 +22,11 @@ namespace KooliProjekt.Application.Data
             GenerateUsers();
             _dbContext.SaveChanges(); // Сохраняем, чтобы получить ID
 
+            GenerateEventPrograms();
+            GenerateEventSummaries();
+            GenerateEventFiles();
+            _dbContext.SaveChanges();
+
             // 2. Теперь создаем зависимые
             GenerateRegistrations();
             _dbContext.SaveChanges();
@@ -37,7 +42,15 @@ namespace KooliProjekt.Application.Data
         {
             for (var i = 1; i <= 10; i++)
             {
-                _dbContext.Events.Add(new Event { Name = $"Событие {i}", TotalSeats = 100 });
+                _dbContext.Events.Add(new Event
+                {
+                    Name = $"Мероприятие {i}",
+                    StartDateTime = DateTime.Today.AddDays(i).AddHours(18),
+                    Description = $"Описание мероприятия {i}",
+                    TotalSeats = 50 + i * 10,
+                    Price = 10 + i * 2,
+                    CreatedAt = DateTime.UtcNow
+                });
             }
         }
 
@@ -45,7 +58,54 @@ namespace KooliProjekt.Application.Data
         {
             for (var i = 1; i <= 10; i++)
             {
-                _dbContext.Users.Add(new User { Name = $"Пользователь {i}", Email = $"user{i}@test.ee", Role = "User" });
+                _dbContext.Users.Add(new User
+                {
+                    Name = $"Пользователь {i}",
+                    Email = $"user{i}@test.ee",
+                    Role = "User",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        private void GenerateEventPrograms()
+        {
+            var events = _dbContext.Events.OrderBy(x => x.Id).Take(10).ToList();
+            for (var i = 0; i < events.Count; i++)
+            {
+                _dbContext.Event_Programs.Add(new Event_Program
+                {
+                    EventId = events[i].Id,
+                    Time = events[i].StartDateTime.AddMinutes(30),
+                    Topic = $"Программа мероприятия {i + 1}"
+                });
+            }
+        }
+
+        private void GenerateEventSummaries()
+        {
+            var events = _dbContext.Events.OrderBy(x => x.Id).Take(10).ToList();
+            for (var i = 0; i < events.Count; i++)
+            {
+                _dbContext.Event_Summaries.Add(new Event_Summary
+                {
+                    EventId = events[i].Id,
+                    SummaryText = $"Итоги мероприятия {i + 1}"
+                });
+            }
+        }
+
+        private void GenerateEventFiles()
+        {
+            var events = _dbContext.Events.OrderBy(x => x.Id).Take(10).ToList();
+            for (var i = 0; i < events.Count; i++)
+            {
+                _dbContext.Event_Files.Add(new Event_Files
+                {
+                    EventId = events[i].Id,
+                    FileUrl = $"https://example.test/events/{events[i].Id}/info.pdf",
+                    FileType = "pdf"
+                });
             }
         }
 
@@ -60,7 +120,7 @@ namespace KooliProjekt.Application.Data
                 {
                     UserId = users[i].Id,
                     EventId = events[i].Id,
-                    Status = "Active",
+                    Status = "Draft",
                     RegisteredAt = DateTime.Now
                 });
             }
@@ -76,7 +136,7 @@ namespace KooliProjekt.Application.Data
                     RegistrationId = regs[i].Id,
                     Number = $"INV-{100 + i}",
                     TotalAmount = 50.0m + i,
-                    Status = "Unpaid",
+                    Status = "Draft",
                     CreatedAt = DateTime.Now
                 });
             }

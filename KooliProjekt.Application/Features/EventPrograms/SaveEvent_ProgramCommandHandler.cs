@@ -28,6 +28,18 @@ namespace KooliProjekt.Application.Features.Events
                 return result;
             }
 
+            var eventEntity = await _dbContext.Events.FindAsync(new object[] { request.EventId }, cancellationToken);
+            if (eventEntity == null)
+            {
+                result.AddPropertyError("EventId", "Мероприятие не найдено");
+                return result;
+            }
+            if (request.Time < eventEntity.StartDateTime)
+            {
+                result.AddPropertyError("Time", "Время пункта программы не может быть раньше начала мероприятия");
+                return result;
+            }
+
             entity.EventId = request.EventId;
             entity.Time = request.Time;
             entity.Topic = request.Topic;

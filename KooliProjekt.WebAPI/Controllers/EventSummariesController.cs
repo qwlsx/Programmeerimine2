@@ -29,5 +29,21 @@ namespace KooliProjekt.WebAPI.Controllers
             var response = await _mediator.Send(command);
             return Result(response);
         }
+
+        [HttpGet]
+        [Route("Get")]
+        public async Task<IActionResult> Get([FromQuery] int id)
+        {
+            var response = await _mediator.Send(new GetEventSummaryQuery { Id = id });
+            return Result(response);
+        }
+
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<IActionResult> Delete([FromQuery] DeleteEventSummaryCommand command)
+        {
+            var response = await _mediator.Send(command);
+            return Result(response);
+        }
     }
 }

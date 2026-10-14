@@ -13,10 +13,10 @@ namespace KooliProjekt.Application.Data
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Метод оплаты обязателен")]
-        [StringLength(50, ErrorMessage = "Метод оплаты не может быть длиннее 50 символов")]
+        [StringLength(30, ErrorMessage = "Метод оплаты не может быть длиннее 30 символов")]
         public string PaymentMethod { get; set; } = string.Empty;
 
-        [StringLength(100, ErrorMessage = "Номер транзакции не может быть длиннее 100 символов")]
+        [StringLength(50, ErrorMessage = "Номер транзакции не может быть длиннее 50 символов")]
         public string? PaymentRef { get; set; }
 
         [Required(ErrorMessage = "Статус платежа обязателен")]

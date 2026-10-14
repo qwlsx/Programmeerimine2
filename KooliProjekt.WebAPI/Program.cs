@@ -28,6 +28,13 @@ namespace KooliProjekt.WebAPI
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("BlazorClient", policy =>
+                    policy.WithOrigins("http://localhost:5173", "https://localhost:7173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
 
             // Настраиваю MediatR и валидаторы
             var applicationAssembly = typeof(ErrorHandlingBehavior<,>).Assembly;
@@ -42,11 +49,12 @@ namespace KooliProjekt.WebAPI
 
             // Регистрирую все репозитории
             builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<IEventProgramRepository, EventProgramRepository>();
+            builder.Services.AddScoped<IEventSummaryRepository, EventSummaryRepository>();
+            builder.Services.AddScoped<IEventFileRepository, EventFileRepository>();
             builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
-            builder.Services.AddScoped<IToDoItemRepository, ToDoItemRepository>();
-            builder.Services.AddScoped<IToDoListRepository, ToDoListRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             var app = builder.Build();
@@ -58,6 +66,7 @@ namespace KooliProjekt.WebAPI
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("BlazorClient");
             app.UseAuthorization();
             app.MapControllers();
 

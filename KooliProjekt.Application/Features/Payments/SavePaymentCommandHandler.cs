@@ -5,16 +5,19 @@ using KooliProjekt.Application.Data;
 using KooliProjekt.Application.Data.Repositories; // Обязательный using для репозитория
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Payments
 {
     public class SavePaymentCommandHandler : IRequestHandler<SavePaymentCommand, OperationResult>
     {
         private readonly IPaymentRepository _repository;
+        private readonly ApplicationDbContext _dbContext;
 
-        public SavePaymentCommandHandler(IPaymentRepository repository)
+        public SavePaymentCommandHandler(IPaymentRepository repository, ApplicationDbContext dbContext)
         {
             _repository = repository;
+            _dbContext = dbContext;
         }
 
         public async Task<OperationResult> Handle(SavePaymentCommand request, CancellationToken cancellationToken)
@@ -40,6 +43,19 @@ namespace KooliProjekt.Application.Features.Payments
 
             // Сохраняем через репозиторий
             await _repository.SaveAsync(entity);
+
+            if (entity.Status == "Completed")
+            {
+                var invoice = await _dbContext.Invoices
+                    .Include(x => x.Registration)
+                    .FirstOrDefaultAsync(x => x.Id == entity.InvoiceId, cancellationToken);
+                if (invoice != null)
+                {
+                    invoice.Status = "Final";
+                    if (invoice.Registration != null) invoice.Registration.Status = "Paid";
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+            }
 
             return result;
         }

@@ -10,7 +10,7 @@ namespace KooliProjekt.Application.Data
         public int RegistrationId { get; set; }
 
         [Required(ErrorMessage = "Номер счета обязателен")]
-        [StringLength(50, ErrorMessage = "Номер счета не может быть длиннее 50 символов")]
+        [StringLength(20, ErrorMessage = "Номер счета не может быть длиннее 20 символов")]
         public string Number { get; set; } = string.Empty;
 
         [Range(0.0, double.MaxValue, ErrorMessage = "Сумма счета не может быть отрицательной")]

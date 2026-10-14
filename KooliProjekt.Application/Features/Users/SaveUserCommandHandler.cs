@@ -3,6 +3,7 @@ using KooliProjekt.Application.Data;
 using KooliProjekt.Application.Data.Repositories; // Добавляем репозиторий
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,7 +35,10 @@ namespace KooliProjekt.Application.Features.Users
             entity.Name = request.Name;
             entity.Email = request.Email;
             entity.Role = request.Role;
-            entity.CreatedAt = request.CreatedAt;
+            if (request.Id == 0)
+            {
+                entity.CreatedAt = request.CreatedAt == default ? DateTime.UtcNow : request.CreatedAt;
+            }
 
             // Сохраняем через репозиторий
             await _repository.SaveAsync(entity);

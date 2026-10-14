@@ -12,11 +12,11 @@ namespace KooliProjekt.Application.Data
 
         [Required(ErrorMessage = "Email обязателен для заполнения")]
         [EmailAddress(ErrorMessage = "Некорректный формат Email адреса")]
-        [StringLength(150, ErrorMessage = "Email не может быть длиннее 150 символов")]
+        [StringLength(100, ErrorMessage = "Email не может быть длиннее 100 символов")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Роль пользователя обязательна")]
-        [StringLength(30, ErrorMessage = "Роль не может быть длиннее 30 символов")]
+        [StringLength(20, ErrorMessage = "Роль не может быть длиннее 20 символов")]
         public string Role { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
