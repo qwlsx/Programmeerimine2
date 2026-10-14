@@ -11,21 +11,20 @@ namespace KooliProjekt.Application.Features.Events
     // Хендлер, который выполняет удаление записи в базе
     public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, OperationResult>
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly KooliProjekt.Application.Data.Repositories.IEventRepository _repository;
 
-        public DeleteEventCommandHandler(ApplicationDbContext dbContext)
+        public DeleteEventCommandHandler(KooliProjekt.Application.Data.Repositories.IEventRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
 
-            // Удаляю запись из таблицы Events, у которой совпадает ID
-            await _dbContext.Events
-                .Where(e => e.Id == request.Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity == null) return result.AddPropertyError("Event", "Мероприятие не найдено");
+            await _repository.DeleteAsync(entity);
 
             return result;
         }

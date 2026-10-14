@@ -11,21 +11,20 @@ namespace KooliProjekt.Application.Features.Users
     // Хендлер для удаления пользователя из базы данных
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, OperationResult>
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly KooliProjekt.Application.Data.Repositories.IUserRepository _repository;
 
-        public DeleteUserCommandHandler(ApplicationDbContext dbContext)
+        public DeleteUserCommandHandler(KooliProjekt.Application.Data.Repositories.IUserRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
 
-            // Удаляю пользователя по ID
-            await _dbContext.Users
-                .Where(u => u.Id == request.Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity == null) return result.AddPropertyError("User", "Пользователь не найден");
+            await _repository.DeleteAsync(entity);
 
             return result;
         }

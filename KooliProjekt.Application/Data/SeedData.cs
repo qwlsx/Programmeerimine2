@@ -15,27 +15,48 @@ namespace KooliProjekt.Application.Data
 
         public void Generate()
         {
-            if (_dbContext.Events.Any()) return;
-
-            // 1. Создаем базовые сущности (они ни от кого не зависят)
-            GenerateEvents();
-            GenerateUsers();
-            _dbContext.SaveChanges(); // Сохраняем, чтобы получить ID
-
-            GenerateEventPrograms();
-            GenerateEventSummaries();
-            GenerateEventFiles();
+            if (!_dbContext.Events.Any()) GenerateEvents();
+            if (!_dbContext.Users.Any()) GenerateUsers();
             _dbContext.SaveChanges();
 
-            // 2. Теперь создаем зависимые
-            GenerateRegistrations();
+            if (!_dbContext.Event_Programs.Any()) GenerateEventPrograms();
+            if (!_dbContext.Event_Summaries.Any()) GenerateEventSummaries();
+            if (!_dbContext.Event_Files.Any()) GenerateEventFiles();
             _dbContext.SaveChanges();
 
-            GenerateInvoices();
+            if (!_dbContext.Registrations.Any()) GenerateRegistrations();
             _dbContext.SaveChanges();
 
-            GeneratePayments();
+            if (!_dbContext.Invoices.Any()) GenerateInvoices();
             _dbContext.SaveChanges();
+
+            if (!_dbContext.Payments.Any()) GeneratePayments();
+            NormalizeExistingData();
+            _dbContext.SaveChanges();
+        }
+
+        private void NormalizeExistingData()
+        {
+            foreach (var item in _dbContext.Events)
+            {
+                if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
+                if (item.StartDateTime < DateTime.Now) item.StartDateTime = DateTime.Today.AddDays(item.Id).AddHours(18);
+                if (string.IsNullOrWhiteSpace(item.Description)) item.Description = $"Описание мероприятия {item.Id}";
+                if (item.TotalSeats <= 0) item.TotalSeats = 50;
+                if (item.Price <= 0) item.Price = 10 + item.Id * 2;
+            }
+
+            foreach (var item in _dbContext.Users)
+                if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
+
+            foreach (var item in _dbContext.Registrations)
+                if (item.RegisteredAt == default) item.RegisteredAt = DateTime.UtcNow;
+
+            foreach (var item in _dbContext.Invoices)
+                if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
+
+            foreach (var item in _dbContext.Payments.Where(x => x.Status == "Completed" && x.PaidAt == null))
+                item.PaidAt = DateTime.UtcNow;
         }
 
         private void GenerateEvents()

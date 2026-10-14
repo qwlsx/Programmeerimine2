@@ -42,6 +42,10 @@ namespace KooliProjekt.Application.Data
                 .HasIndex(x => x.PaymentRef)
                 .IsUnique()
                 .HasFilter("[PaymentRef] IS NOT NULL");
+
+            modelBuilder.Entity<Event>().Property(x => x.Price).HasPrecision(18, 2);
+            modelBuilder.Entity<Invoice>().Property(x => x.TotalAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<Payment>().Property(x => x.Amount).HasPrecision(18, 2);
         }
     }
 }

@@ -11,21 +11,20 @@ namespace KooliProjekt.Application.Features.Payments
     // Хендлер для удаления платежа из базы данных
     public class DeletePaymentCommandHandler : IRequestHandler<DeletePaymentCommand, OperationResult>
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly KooliProjekt.Application.Data.Repositories.IPaymentRepository _repository;
 
-        public DeletePaymentCommandHandler(ApplicationDbContext dbContext)
+        public DeletePaymentCommandHandler(KooliProjekt.Application.Data.Repositories.IPaymentRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
 
-            // Удаляю платеж по его ID
-            await _dbContext.Payments
-                .Where(p => p.Id == request.Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity == null) return result.AddPropertyError("Payment", "Платёж не найден");
+            await _repository.DeleteAsync(entity);
 
             return result;
         }

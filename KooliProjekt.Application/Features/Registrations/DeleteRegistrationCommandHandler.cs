@@ -11,21 +11,20 @@ namespace KooliProjekt.Application.Features.Registrations
     // Хендлер для удаления регистрации из базы
     public class DeleteRegistrationCommandHandler : IRequestHandler<DeleteRegistrationCommand, OperationResult>
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly KooliProjekt.Application.Data.Repositories.IRegistrationRepository _repository;
 
-        public DeleteRegistrationCommandHandler(ApplicationDbContext dbContext)
+        public DeleteRegistrationCommandHandler(KooliProjekt.Application.Data.Repositories.IRegistrationRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(DeleteRegistrationCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
 
-            // Удаляю регистрацию по ID
-            await _dbContext.Registrations
-                .Where(r => r.Id == request.Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity == null) return result.AddPropertyError("Registration", "Регистрация не найдена");
+            await _repository.DeleteAsync(entity);
 
             return result;
         }

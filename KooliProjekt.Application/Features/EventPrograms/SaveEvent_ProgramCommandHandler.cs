@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using KooliProjekt.Application.Data;
+using KooliProjekt.Application.Data.Repositories;
 using KooliProjekt.Application.Infrastructure.Results;
 using MediatR;
 
@@ -10,17 +11,19 @@ namespace KooliProjekt.Application.Features.Events
     public class SaveEvent_ProgramCommandHandler : IRequestHandler<SaveEvent_ProgramCommand, OperationResult>
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IEventProgramRepository _repository;
 
-        public SaveEvent_ProgramCommandHandler(ApplicationDbContext dbContext)
+        public SaveEvent_ProgramCommandHandler(ApplicationDbContext dbContext, IEventProgramRepository repository)
         {
             _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(SaveEvent_ProgramCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
             var isNew = request.Id == 0;
-            var entity = isNew ? new Event_Program() : await _dbContext.Event_Programs.FindAsync(request.Id);
+            var entity = isNew ? new Event_Program() : await _repository.GetByIdAsync(request.Id);
 
             if (entity == null)
             {
@@ -44,8 +47,7 @@ namespace KooliProjekt.Application.Features.Events
             entity.Time = request.Time;
             entity.Topic = request.Topic;
 
-            if (isNew) await _dbContext.Event_Programs.AddAsync(entity, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _repository.SaveAsync(entity);
 
             return result;
         }

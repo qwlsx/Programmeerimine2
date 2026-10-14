@@ -71,14 +71,12 @@ namespace KooliProjekt.WebAPI
             app.MapControllers();
 
             // Создаю область для инициализации базы данных и генерации тестовых данных
-            using (var scope = app.Services.CreateScope())
-            using (var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            if (!app.Environment.IsEnvironment("Testing"))
             {
-                // Применяю миграции, чтобы база данных была актуальной
+                using var scope = app.Services.CreateScope();
+                using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 dbContext.Database.Migrate();
 
-                // Использую директиву препроцессора, чтобы генератор работал 
-                // только в режиме отладки (DEBUG)
 #if DEBUG
                 var generator = new SeedData(dbContext);
                 generator.Generate();

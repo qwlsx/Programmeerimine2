@@ -11,21 +11,20 @@ namespace KooliProjekt.Application.Features.Invoices
     // Хендлер для удаления счета из базы данных
     public class DeleteInvoiceCommandHandler : IRequestHandler<DeleteInvoiceCommand, OperationResult>
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly KooliProjekt.Application.Data.Repositories.IInvoiceRepository _repository;
 
-        public DeleteInvoiceCommandHandler(ApplicationDbContext dbContext)
+        public DeleteInvoiceCommandHandler(KooliProjekt.Application.Data.Repositories.IInvoiceRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
 
         public async Task<OperationResult> Handle(DeleteInvoiceCommand request, CancellationToken cancellationToken)
         {
             var result = new OperationResult();
 
-            // Удаляю счет по ID
-            await _dbContext.Invoices
-                .Where(i => i.Id == request.Id)
-                .ExecuteDeleteAsync(cancellationToken);
+            var entity = await _repository.GetByIdAsync(request.Id);
+            if (entity == null) return result.AddPropertyError("Invoice", "Счёт не найден");
+            await _repository.DeleteAsync(entity);
 
             return result;
         }
